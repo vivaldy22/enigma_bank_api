@@ -29,8 +29,11 @@ drop database enigma_bank;
 drop table transaction;
 
 insert into login values (null, 'admin', 'admin', 0);
+insert into login values (null, 'user', 'user', 0);
 insert into user values (null, 1, 200, 0);
+insert into user values (null, 2, 500, 0);
 insert into transaction values (null, 1, NOW(), 'Vivaldy', 50, 'Pay for lunch', 0);
+insert into transaction values (null, 2, NOW(), 'Andhira', 20, 'Pay for breakfast', 0);
 select * from login;
 select * from user where login_owner_id = 1;
 select * from transaction where user_owner_id = 1;
