@@ -13,6 +13,7 @@ type transactionUseCase struct {
 
 func (u *transactionUseCase) GetAllTransactions() ([]*models.Transaction, error) {
 	res, err := u.transactionRepo.GetAllTransactions()
+
 	if err != nil {
 		return nil, err
 	}
@@ -28,6 +29,22 @@ func (u *transactionUseCase) GetByID(id int) (*models.Transaction, error) {
 	}
 
 	res, err := u.transactionRepo.GetByID(id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func (u *transactionUseCase) GetByUserOwnerID(id int) ([]*models.Transaction, error) {
+	err := validation.ValidateInputNotEmpty(id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := u.transactionRepo.GetByUserOwnerID(id)
 
 	if err != nil {
 		return nil, err
