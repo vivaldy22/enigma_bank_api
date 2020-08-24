@@ -2,7 +2,7 @@
 
 Don't forget to create a database, you can use one in the db.sql file
 
-Create a file called ".env" without quote
+Create a file called ".env" in the root directory without quote
 The content is below
 
 DB_USER={your mysql user} <br />
