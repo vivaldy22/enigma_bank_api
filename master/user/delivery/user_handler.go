@@ -15,7 +15,7 @@ import (
 )
 
 func (u *UserHandler) ShowUsers(w http.ResponseWriter, r *http.Request) {
-	data, err := u.LUseCase.GetAllUsers()
+	data, err := u.UUseCase.GetAllUsers()
 
 	if err != nil {
 		vError.WriteError("Show Users failed!", err, &w)
@@ -30,12 +30,12 @@ func (u *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		vError.WriteError("Decoding json failed!", err, &w)
 	} else {
-		err = u.LUseCase.Store(user)
+		err = u.UUseCase.Store(user)
 
 		if err != nil {
 			vError.WriteError("Create User failed", err, &w)
 		} else {
-			data, err := u.LUseCase.GetByID(user.UserID)
+			data, err := u.UUseCase.GetByID(user.UserID)
 
 			if err != nil {
 				vError.WriteError("Get User by ID failed", err, &w)
@@ -52,7 +52,7 @@ func (u *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		vError.WriteError("Converting id failed! not a number", err, &w)
 	} else {
-		data, err := u.LUseCase.GetByID(idNum)
+		data, err := u.UUseCase.GetByID(idNum)
 
 		if err != nil {
 			vError.WriteError("Get User By ID failed!", err, &w)
@@ -75,12 +75,12 @@ func (u *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			vError.WriteError("Converting id failed! not a number", err, &w)
 		} else {
-			err := u.LUseCase.Update(idNum, user)
+			err := u.UUseCase.Update(idNum, user)
 
 			if err != nil {
 				vError.WriteError("Updating data failed!", err, &w)
 			} else {
-				checkData, err := u.LUseCase.GetByID(idNum)
+				checkData, err := u.UUseCase.GetByID(idNum)
 
 				if err != nil {
 					vError.WriteError("Get User By ID failed!", err, &w)
@@ -98,12 +98,12 @@ func (u *UserHandler) RemoveUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		vError.WriteError("Converting id failed! not a number", err, &w)
 	} else {
-		data, err := u.LUseCase.GetByID(idNum)
+		data, err := u.UUseCase.GetByID(idNum)
 
 		if err != nil {
 			vError.WriteError("Get User By ID failed!", err, &w)
 		} else {
-			err := u.LUseCase.Delete(idNum)
+			err := u.UUseCase.Delete(idNum)
 
 			if err != nil {
 				vError.WriteError("Delete User failed!", err, &w)

@@ -14,57 +14,76 @@ import (
 	"github.com/vivaldy22/enigma_bank/tools/respJson"
 )
 
-func (u *UserHandler) ShowUsers(w http.ResponseWriter, r *http.Request) {
-	data, err := u.LUseCase.GetAllUsers()
+func (u *TransactionHandler) ShowTransactions(w http.ResponseWriter, r *http.Request) {
+	data, err := u.TUseCase.GetAllTransactions()
 
 	if err != nil {
-		vError.WriteError("Show Users failed!", err, &w)
+		vError.WriteError("Show Transactions failed!", err, &w)
 	} else {
 		respJson.WriteJSON(data, w)
 	}
 }
-func (u *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
-	var user *models.User
-	err := json.NewDecoder(r.Body).Decode(&user)
+
+func (u *TransactionHandler) CreateTransaction(w http.ResponseWriter, r *http.Request) {
+	var transaction *models.Transaction
+	err := json.NewDecoder(r.Body).Decode(&transaction)
 
 	if err != nil {
 		vError.WriteError("Decoding json failed!", err, &w)
 	} else {
-		err = u.LUseCase.Store(user)
+		err = u.TUseCase.Store(transaction)
 
 		if err != nil {
-			vError.WriteError("Create User failed", err, &w)
+			vError.WriteError("Create Transaction failed", err, &w)
 		} else {
-			data, err := u.LUseCase.GetByID(user.UserID)
+			data, err := u.TUseCase.GetByID(transaction.TransID)
 
 			if err != nil {
-				vError.WriteError("Get User by ID failed", err, &w)
+				vError.WriteError("Get Transaction by ID failed", err, &w)
 			} else {
 				respJson.WriteJSON(data, w)
 			}
 		}
 	}
 }
-func (u *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
+
+func (u *TransactionHandler) GetTransactionByID(w http.ResponseWriter, r *http.Request) {
 	id := varMux.GetVarsMux("id", r)
 	idNum, err := strconv.Atoi(id)
 
 	if err != nil {
 		vError.WriteError("Converting id failed! not a number", err, &w)
 	} else {
-		data, err := u.LUseCase.GetByID(idNum)
+		data, err := u.TUseCase.GetByID(idNum)
 
 		if err != nil {
-			vError.WriteError("Get User By ID failed!", err, &w)
+			vError.WriteError("Get Transaction By ID failed!", err, &w)
 		} else {
 			respJson.WriteJSON(data, w)
 		}
 	}
-
 }
-func (u *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
-	var user *models.User
-	err := json.NewDecoder(r.Body).Decode(&user)
+
+func (u *TransactionHandler) GetTransactionByUserOwnerID(w http.ResponseWriter, r *http.Request) {
+	id := varMux.GetVarsMux("id", r)
+	idNum, err := strconv.Atoi(id)
+
+	if err != nil {
+		vError.WriteError("Converting id failed! not a number", err, &w)
+	} else {
+		data, err := u.TUseCase.GetByUserOwnerID(idNum)
+
+		if err != nil {
+			vError.WriteError("Get Transaction By User Owner ID failed!", err, &w)
+		} else {
+			respJson.WriteJSON(data, w)
+		}
+	}
+}
+
+func (u *TransactionHandler) UpdateTransaction(w http.ResponseWriter, r *http.Request) {
+	var transaction *models.Transaction
+	err := json.NewDecoder(r.Body).Decode(&transaction)
 
 	if err != nil {
 		vError.WriteError("Decoding json failed", err, &w)
@@ -75,15 +94,15 @@ func (u *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			vError.WriteError("Converting id failed! not a number", err, &w)
 		} else {
-			err := u.LUseCase.Update(idNum, user)
+			err := u.TUseCase.Update(idNum, transaction)
 
 			if err != nil {
 				vError.WriteError("Updating data failed!", err, &w)
 			} else {
-				checkData, err := u.LUseCase.GetByID(idNum)
+				checkData, err := u.TUseCase.GetByID(idNum)
 
 				if err != nil {
-					vError.WriteError("Get User By ID failed!", err, &w)
+					vError.WriteError("Get Transaction By ID failed!", err, &w)
 				} else {
 					respJson.WriteJSON(checkData, w)
 				}
@@ -91,22 +110,23 @@ func (u *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
-func (u *UserHandler) RemoveUser(w http.ResponseWriter, r *http.Request) {
+
+func (u *TransactionHandler) RemoveTransaction(w http.ResponseWriter, r *http.Request) {
 	id := varMux.GetVarsMux("id", r)
 	idNum, err := strconv.Atoi(id)
 
 	if err != nil {
 		vError.WriteError("Converting id failed! not a number", err, &w)
 	} else {
-		data, err := u.LUseCase.GetByID(idNum)
+		data, err := u.TUseCase.GetByID(idNum)
 
 		if err != nil {
-			vError.WriteError("Get User By ID failed!", err, &w)
+			vError.WriteError("Get Transaction By ID failed!", err, &w)
 		} else {
-			err := u.LUseCase.Delete(idNum)
+			err := u.TUseCase.Delete(idNum)
 
 			if err != nil {
-				vError.WriteError("Delete User failed!", err, &w)
+				vError.WriteError("Delete Transaction failed!", err, &w)
 			} else {
 				respJson.WriteJSON(data, w)
 			}

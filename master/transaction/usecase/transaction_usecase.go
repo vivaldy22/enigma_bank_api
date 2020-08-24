@@ -7,12 +7,12 @@ import (
 	"github.com/vivaldy22/enigma_bank/tools/validation"
 )
 
-type userUseCase struct {
-	userRepo models.UserRepository
+type transactionUseCase struct {
+	transactionRepo models.TransactionRepository
 }
 
-func (u *userUseCase) GetAllUsers() ([]*models.User, error) {
-	res, err := u.userRepo.GetAllUsers()
+func (u *transactionUseCase) GetAllTransactions() ([]*models.Transaction, error) {
+	res, err := u.transactionRepo.GetAllTransactions()
 	if err != nil {
 		return nil, err
 	}
@@ -20,14 +20,14 @@ func (u *userUseCase) GetAllUsers() ([]*models.User, error) {
 	return res, nil
 }
 
-func (u *userUseCase) GetByID(id int) (*models.User, error) {
+func (u *transactionUseCase) GetByID(id int) (*models.Transaction, error) {
 	err := validation.ValidateInputNotEmpty(id)
 
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := u.userRepo.GetByID(id)
+	res, err := u.transactionRepo.GetByID(id)
 
 	if err != nil {
 		return nil, err
@@ -36,50 +36,52 @@ func (u *userUseCase) GetByID(id int) (*models.User, error) {
 	return res, nil
 }
 
-func (u *userUseCase) Store(user *models.User) error {
-	err := validation.ValidateInputNotEmpty(user.LoginOwnerID, user.Balance)
+func (u *transactionUseCase) Store(transaction *models.Transaction) error {
+	err := validation.ValidateInputNotEmpty(transaction.UserOwnerID, transaction.TransDate, transaction.Destination,
+		transaction.Amount, transaction.Description)
 
 	if err != nil {
 		return err
 	}
 
-	if err = u.userRepo.Store(user); err != nil {
+	if err = u.transactionRepo.Store(transaction); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (u *userUseCase) Update(id int, user *models.User) error {
-	err := validation.ValidateInputNotEmpty(id, user.LoginOwnerID, user.Balance)
+func (u *transactionUseCase) Update(id int, transaction *models.Transaction) error {
+	err := validation.ValidateInputNotEmpty(id, transaction.UserOwnerID, transaction.TransDate, transaction.Destination,
+		transaction.Amount, transaction.Description)
 	if err != nil {
 		return err
 	}
 
-	if _, err = u.userRepo.GetByID(id); err != nil {
-		return errors.New("user id not found")
+	if _, err = u.transactionRepo.GetByID(id); err != nil {
+		return errors.New("transaction id not found")
 	}
 
-	if err = u.userRepo.Update(id, user); err != nil {
+	if err = u.transactionRepo.Update(id, transaction); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (u *userUseCase) Delete(id int) error {
+func (u *transactionUseCase) Delete(id int) error {
 	err := validation.ValidateInputNotEmpty(id)
 	if err != nil {
 		return err
 	}
 
-	if err = u.userRepo.Delete(id); err != nil {
+	if err = u.transactionRepo.Delete(id); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func NewUserUseCase(repo models.UserRepository) models.UserUseCase {
-	return &userUseCase{repo}
+func NewTransactionUseCase(repo models.TransactionRepository) models.TransactionUseCase {
+	return &transactionUseCase{repo}
 }

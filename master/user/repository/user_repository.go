@@ -7,13 +7,13 @@ import (
 	"github.com/vivaldy22/enigma_bank/tools/queries"
 )
 
-type loginRepo struct {
+type userRepo struct {
 	db *sql.DB
 }
 
-func (l *loginRepo) GetAllLogin() ([]*models.Login, error) {
-	var logins []*models.Login
-	rows, err := l.db.Query(queries.GET_ALL_LOGIN)
+func (u *userRepo) GetAllUsers() ([]*models.User, error) {
+	var users []*models.User
+	rows, err := u.db.Query(queries.GET_ALL_USER)
 
 	if err != nil {
 		return nil, err
@@ -21,43 +21,43 @@ func (l *loginRepo) GetAllLogin() ([]*models.Login, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var each = new(models.Login)
-		if err := rows.Scan(&each.LoginID, &each.Username, &each.Password, &each.StatusDel); err != nil {
+		var each = new(models.User)
+		if err := rows.Scan(&each.UserID, &each.LoginOwnerID, &each.Balance, &each.StatusDel); err != nil {
 			return nil, err
 		}
-		logins = append(logins, each)
+		users = append(users, each)
 	}
 
 	if err = rows.Err(); err != nil {
 		return nil, err
 	}
-	return logins, nil
+	return users, nil
 }
 
-func (l *loginRepo) GetByID(id int) (*models.Login, error) {
-	var login = new(models.Login)
-	row := l.db.QueryRow(queries.GET_BY_ID_LOGIN, id)
+func (u *userRepo) GetByID(id int) (*models.User, error) {
+	var user = new(models.User)
+	row := u.db.QueryRow(queries.GET_BY_ID_LOGIN_OWNER, id)
 
-	if err := row.Scan(&login.LoginID, &login.Username, &login.Password, &login.StatusDel); err != nil {
+	if err := row.Scan(&user.UserID, &user.LoginOwnerID, &user.Balance, &user.StatusDel); err != nil {
 		return nil, err
 	}
-	return login, nil
+	return user, nil
 }
 
-func (l *loginRepo) Store(login *models.Login) error {
-	tx, err := l.db.Begin()
+func (u *userRepo) Store(user *models.User) error {
+	tx, err := u.db.Begin()
 
 	if err != nil {
 		return err
 	}
 
-	stmt, err := tx.Prepare(queries.CREATE_LOGIN)
+	stmt, err := tx.Prepare(queries.CREATE_USER)
 
 	if err != nil {
 		return err
 	}
 
-	res, err := stmt.Exec(login.Username, login.Password)
+	res, err := stmt.Exec(user.LoginOwnerID, user.Balance)
 
 	if err != nil {
 		return tx.Rollback()
@@ -69,39 +69,39 @@ func (l *loginRepo) Store(login *models.Login) error {
 		return tx.Rollback()
 	}
 
-	login.LoginID = int(lastInsertID)
+	user.UserID = int(lastInsertID)
 	stmt.Close()
 	return tx.Commit()
 }
 
-func (l *loginRepo) Update(id int, login *models.Login) error {
-	tx, err := l.db.Begin()
+func (u *userRepo) Update(id int, user *models.User) error {
+	tx, err := u.db.Begin()
 	if err != nil {
 		return err
 	}
 
-	stmt, err := tx.Prepare(queries.UPDATE_LOGIN)
+	stmt, err := tx.Prepare(queries.UPDATE_USER)
 	if err != nil {
 		return err
 	}
 
-	_, err = stmt.Exec(login.Username, login.Password, id)
+	_, err = stmt.Exec(user.LoginOwnerID, user.Balance, id)
 	if err != nil {
 		return tx.Rollback()
 	}
 
 	stmt.Close()
-	login.LoginID = id
+	user.UserID = id
 	return tx.Commit()
 }
 
-func (l *loginRepo) Delete(id int) error {
-	tx, err := l.db.Begin()
+func (u *userRepo) Delete(id int) error {
+	tx, err := u.db.Begin()
 	if err != nil {
 		return err
 	}
 
-	stmt, err := tx.Prepare(queries.DELETE_LOGIN)
+	stmt, err := tx.Prepare(queries.DELETE_USER)
 	if err != nil {
 		return err
 	}
@@ -115,6 +115,6 @@ func (l *loginRepo) Delete(id int) error {
 	return tx.Commit()
 }
 
-func NewLoginRepo(db *sql.DB) models.LoginRepository {
-	return &loginRepo{db}
+func NewUserRepo(db *sql.DB) models.UserRepository {
+	return &userRepo{db}
 }

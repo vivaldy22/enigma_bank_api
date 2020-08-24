@@ -7,17 +7,18 @@ import (
 	"github.com/vivaldy22/enigma_bank/models"
 )
 
-type UserHandler struct {
-	LUseCase models.UserUseCase
+type TransactionHandler struct {
+	TUseCase models.TransactionUseCase
 }
 
-func NewUserHandler(u models.UserUseCase, r *mux.Router) {
-	handler := &UserHandler{u}
-	r.HandleFunc("/users", handler.ShowUsers).Methods(http.MethodGet)
+func NewTransactionHandler(u models.TransactionUseCase, r *mux.Router) {
+	handler := &TransactionHandler{u}
+	r.HandleFunc("/transactions", handler.ShowTransactions).Methods(http.MethodGet)
 
-	userPref := r.PathPrefix("/user").Subrouter()
-	userPref.HandleFunc("", handler.CreateUser).Methods(http.MethodPost)
-	userPref.HandleFunc("/{id}", handler.GetUserByID).Methods(http.MethodGet)
-	userPref.HandleFunc("/{id}", handler.UpdateUser).Methods(http.MethodPut)
-	userPref.HandleFunc("/{id}", handler.RemoveUser).Methods(http.MethodDelete)
+	transactionPref := r.PathPrefix("/transaction").Subrouter()
+	transactionPref.HandleFunc("", handler.CreateTransaction).Methods(http.MethodPost)
+	transactionPref.HandleFunc("/{id}", handler.GetTransactionByID).Methods(http.MethodGet)
+	transactionPref.HandleFunc("/user/{id}", handler.GetTransactionByUserOwnerID).Methods(http.MethodGet)
+	transactionPref.HandleFunc("/{id}", handler.UpdateTransaction).Methods(http.MethodPut)
+	transactionPref.HandleFunc("/{id}", handler.RemoveTransaction).Methods(http.MethodDelete)
 }

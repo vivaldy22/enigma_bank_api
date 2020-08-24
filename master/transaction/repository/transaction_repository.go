@@ -7,13 +7,13 @@ import (
 	"github.com/vivaldy22/enigma_bank/tools/queries"
 )
 
-type userRepo struct {
+type transactionRepo struct {
 	db *sql.DB
 }
 
-func (u *userRepo) GetAllUsers() ([]*models.User, error) {
-	var users []*models.User
-	rows, err := u.db.Query(queries.GET_ALL_USER)
+func (u *transactionRepo) GetAllTransactions() ([]*models.Transaction, error) {
+	var transactions []*models.Transaction
+	rows, err := u.db.Query(queries.GET_ALL_TRANSACTION)
 
 	if err != nil {
 		return nil, err
@@ -21,43 +21,70 @@ func (u *userRepo) GetAllUsers() ([]*models.User, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var each = new(models.User)
-		if err := rows.Scan(&each.UserID, &each.LoginOwnerID, &each.Balance, &each.StatusDel); err != nil {
+		var each = new(models.Transaction)
+		if err := rows.Scan(&each.TransID, &each.UserOwnerID, &each.TransDate, &each.Destination, &each.Amount,
+			&each.Description, &each.StatusDel); err != nil {
 			return nil, err
 		}
-		users = append(users, each)
+		transactions = append(transactions, each)
 	}
 
 	if err = rows.Err(); err != nil {
 		return nil, err
 	}
-	return users, nil
+	return transactions, nil
 }
 
-func (u *userRepo) GetByID(id int) (*models.User, error) {
-	var user = new(models.User)
-	row := u.db.QueryRow(queries.GET_BY_ID_USER, id)
+func (u *transactionRepo) GetByID(id int) (*models.Transaction, error) {
+	var transaction = new(models.Transaction)
+	row := u.db.QueryRow(queries.GET_BY_ID_TRANSACTION, id)
 
-	if err := row.Scan(&user.UserID, &user.LoginOwnerID, &user.Balance, &user.StatusDel); err != nil {
+	if err := row.Scan(&transaction.TransID, &transaction.UserOwnerID, &transaction.TransDate, &transaction.Destination,
+		&transaction.Amount, &transaction.Description, &transaction.StatusDel); err != nil {
 		return nil, err
 	}
-	return user, nil
+	return transaction, nil
 }
 
-func (u *userRepo) Store(user *models.User) error {
+func (u *transactionRepo) GetByUserOwnerID(id int) ([]*models.Transaction, error) {
+	var transactions []*models.Transaction
+	rows, err := u.db.Query(queries.GET_BY_ID_USER_OWNER, id)
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var each = new(models.Transaction)
+		if err := rows.Scan(&each.TransID, &each.UserOwnerID, &each.TransDate, &each.Destination, &each.Amount,
+			&each.Description, &each.StatusDel); err != nil {
+			return nil, err
+		}
+		transactions = append(transactions, each)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return transactions, nil
+}
+
+func (u *transactionRepo) Store(transaction *models.Transaction) error {
 	tx, err := u.db.Begin()
 
 	if err != nil {
 		return err
 	}
 
-	stmt, err := tx.Prepare(queries.CREATE_USER)
+	stmt, err := tx.Prepare(queries.CREATE_TRANSACTION)
 
 	if err != nil {
 		return err
 	}
 
-	res, err := stmt.Exec(user.LoginOwnerID, user.Balance)
+	res, err := stmt.Exec(transaction.UserOwnerID, transaction.TransDate, transaction.Destination,
+		transaction.Amount, transaction.Description)
 
 	if err != nil {
 		return tx.Rollback()
@@ -69,39 +96,40 @@ func (u *userRepo) Store(user *models.User) error {
 		return tx.Rollback()
 	}
 
-	user.UserID = int(lastInsertID)
+	transaction.TransID = int(lastInsertID)
 	stmt.Close()
 	return tx.Commit()
 }
 
-func (u *userRepo) Update(id int, user *models.User) error {
+func (u *transactionRepo) Update(id int, transaction *models.Transaction) error {
 	tx, err := u.db.Begin()
 	if err != nil {
 		return err
 	}
 
-	stmt, err := tx.Prepare(queries.UPDATE_USER)
+	stmt, err := tx.Prepare(queries.UPDATE_TRANSACTION)
 	if err != nil {
 		return err
 	}
 
-	_, err = stmt.Exec(user.LoginOwnerID, user.Balance, id)
+	_, err = stmt.Exec(transaction.TransDate, transaction.Destination,
+		transaction.Amount, transaction.Description, id)
 	if err != nil {
 		return tx.Rollback()
 	}
 
 	stmt.Close()
-	user.UserID = id
+	transaction.TransID = id
 	return tx.Commit()
 }
 
-func (u *userRepo) Delete(id int) error {
+func (u *transactionRepo) Delete(id int) error {
 	tx, err := u.db.Begin()
 	if err != nil {
 		return err
 	}
 
-	stmt, err := tx.Prepare(queries.DELETE_USER)
+	stmt, err := tx.Prepare(queries.DELETE_TRANSACTION)
 	if err != nil {
 		return err
 	}
@@ -115,6 +143,6 @@ func (u *userRepo) Delete(id int) error {
 	return tx.Commit()
 }
 
-func NewUserRepo(db *sql.DB) models.UserRepository {
-	return &userRepo{db}
+func NewTransactionRepo(db *sql.DB) models.TransactionRepository {
+	return &transactionRepo{db}
 }

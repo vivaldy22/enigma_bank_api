@@ -8,7 +8,7 @@ import (
 )
 
 type UserHandler struct {
-	LUseCase models.UserUseCase
+	UUseCase models.UserUseCase
 }
 
 func NewUserHandler(u models.UserUseCase, r *mux.Router) {

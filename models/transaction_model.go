@@ -13,6 +13,7 @@ type Transaction struct {
 type TransactionRepository interface {
 	GetAllTransactions() ([]*Transaction, error)
 	GetByID(id int) (*Transaction, error)
+	GetByUserOwnerID(id int) ([]*Transaction, error)
 	Store(trans *Transaction) error
 	Update(id int, movie *Transaction) error
 	Delete(id int) error
@@ -21,6 +22,7 @@ type TransactionRepository interface {
 type TransactionUseCase interface {
 	GetAllTransactions() ([]*Transaction, error)
 	GetByID(id int) (*Transaction, error)
+	GetByUserOwnerID(id int) ([]*Transaction, error)
 	Store(trans *Transaction) error
 	Update(id int, movie *Transaction) error
 	Delete(id int) error
